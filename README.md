@@ -25,4 +25,3 @@ Help me find a flat in Berlin.
 ## Useful links
 - https://core.telegram.org/bots
 - https://docs.influxdata.com/kapacitor/v1/reference/event_handlers/telegram/
-- 

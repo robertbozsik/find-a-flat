@@ -1,10 +1,14 @@
 import json
 import os
+import time
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 import requests
 from requests import Session
+
+from settings import Settings
+st = Settings()
 
 
 def send_telegram_message(message: str) -> requests.Response:
@@ -51,16 +55,12 @@ def scrape_ebay_kleinanzeigen(url: str):
         'Referer': 'https://www.google.com/',
     }
 
-    print(1)
-
     res = (
         requests.get(
             url=url,
             headers=headers_dict,
         )
     )
-
-    print(1)
 
     if res.status_code == 200:
         # open the scraped_flat_ids.txt file
@@ -70,20 +70,11 @@ def scrape_ebay_kleinanzeigen(url: str):
         # create a set for new flat results
         current_flat_ids = set()
 
+        # create the text of the addition to the Telegram message
+        additional_message_text = ""
+
         # unwanted keywords
-        exclude_keywords = [
-            "untermiete",
-            "sublet",
-            "tausch",
-            "suche",
-            "gesucht",
-            "sucht",
-            "zwischenmiete",
-            "wohngemeinschaft",
-            "wg ",
-            "lichtenrade",
-            "spandau",
-        ]
+        exclude_keywords = st.exclude_keywords
 
         # start to scrape the url
         soup = BeautifulSoup(res.content, 'html.parser')
@@ -91,8 +82,6 @@ def scrape_ebay_kleinanzeigen(url: str):
 
         for article in articles:
             flat_id = article.get("data-adid")
-
-            print(1)
 
             if flat_id not in scraped_flat_ids:
                 h2_tags = article.find_all("h2", class_="text-module-begin")
@@ -102,23 +91,21 @@ def scrape_ebay_kleinanzeigen(url: str):
                     for link in links:
                         link_text = link.get_text(strip=True)
                         link_text_lowered = link_text.lower()
-                        href_value = link.get("href")
+                        link_href = link.get("href")
 
                         if not any(keyword in link_text_lowered for keyword in exclude_keywords):
                             current_flat_ids.add(flat_id)
                             print(link_text)
-                            print(f"https://www.kleinanzeigen.de/{href_value}")
-                            print(1)
+                            additional_message_text += f"Ad title: {link_text}\n"
+                            print(f"https://www.kleinanzeigen.de/{link_href}")
+                            additional_message_text += f"Direct link: https://www.kleinanzeigen.de/{link_href}\n\n"
 
         if len(current_flat_ids) > 0:
-            message = f"New flat found at {url}"
-            print(1)
+            message = f"New flat found at {url} \n\n{additional_message_text}"
             send_telegram_message(message=message)
 
             with open("scraped_flat_ids.txt", "w") as file:
                 file.write("\n".join(scraped_flat_ids.union(current_flat_ids)))
-
-        print(1)
         return None
     else:
         print('response error:', res.status_code)
@@ -128,18 +115,10 @@ def scrape_ebay_kleinanzeigen(url: str):
 def main():
     load_dotenv()
 
-    url_to_scrape = "https://www.kleinanzeigen.de/s-wohnung-mieten/steglitz/anzeige:angebote/preis::1400/c203l3414+wohnung_mieten.qm_d:65.00%2C+wohnung_mieten.swap_s:nein+wohnung_mieten.zimmer_d:2.5%2C"
-    url_to_scrape = "https://www.kleinanzeigen.de/s-wohnung-mieten/schoeneberg/anzeige:angebote/preis::1400/c203l3414+wohnung_mieten.qm_d:65.00%2C+wohnung_mieten.swap_s:nein+wohnung_mieten.zimmer_d:2.5%2C"
-    url_to_scrape = "https://www.kleinanzeigen.de/s-wohnung-mieten/wilmersdorf/anzeige:angebote/preis::1400/c203l3414+wohnung_mieten.qm_d:65.00%2C+wohnung_mieten.swap_s:nein+wohnung_mieten.zimmer_d:2.5%2C"
-    url_to_scrape = "https://www.kleinanzeigen.de/s-wohnung-mieten/friedenau/anzeige:angebote/preis::1400/c203l3414+wohnung_mieten.qm_d:65.00%2C+wohnung_mieten.swap_s:nein+wohnung_mieten.zimmer_d:2.5%2C"
-
-    scrape_ebay_kleinanzeigen(
-        url=url_to_scrape
-    )
-
-    print(1)
+    for url in st.urls_to_scrape:
+        scrape_ebay_kleinanzeigen(url=url)
+        time.sleep(3)
 
 
 if __name__ == '__main__':
     main()
-    print(1)
