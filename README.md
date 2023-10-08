@@ -2,6 +2,10 @@
 
 Help me find a flat in Berlin.
 
+## Create and activate virtual environment
+create: `python3 -m venv find-a-flat-venv`
+activate: `source find-a-flat-venv/bin/activate`
+
 ## Create a Telegram bot
 1. Download and set the Telegram application on your mobile
 2. Search for the `@BotFather` username in your Telegram application
