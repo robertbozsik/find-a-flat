@@ -113,7 +113,7 @@ def scrape_ebay_kleinanzeigen(url: str):
             message = f"New flat found at {url} \n\n{additional_message_text}"
             send_telegram_message(message=message)
 
-            with open(f"{script_directory_abs_path}scraped_flat_ids.txt", "w") as file:
+            with open(f"{script_directory_abs_path}/scraped_flat_ids.txt", "w") as file:
                 file.write("\n".join(scraped_flat_ids.union(current_flat_ids)))
         else:
             logger.info("no new flat")
