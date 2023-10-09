@@ -43,4 +43,5 @@ class Settings:
             "lichtenrade",
             "spandau",
             "wedding",
+            "pendler",
         ]
