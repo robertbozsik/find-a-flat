@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 import time
 
 from bs4 import BeautifulSoup
@@ -9,6 +10,7 @@ from requests import Session
 
 from settings import Settings
 st = Settings()
+logger = st.logger
 
 
 def send_telegram_message(message: str) -> requests.Response:
@@ -46,7 +48,14 @@ def send_telegram_message(message: str) -> requests.Response:
     return response
 
 
+def find_script_directory_absolute_path():
+    script_directory_absolute_path = Path(__file__).resolve().parent
+    return script_directory_absolute_path
+
+
 def scrape_ebay_kleinanzeigen(url: str):
+    script_directory_abs_path = find_script_directory_absolute_path()
+
     headers_dict = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36',
         'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
@@ -64,7 +73,7 @@ def scrape_ebay_kleinanzeigen(url: str):
 
     if res.status_code == 200:
         # open the scraped_flat_ids.txt file
-        with open("scraped_flat_ids.txt", "r") as file:
+        with open(f"{script_directory_abs_path}/scraped_flat_ids.txt", "r") as file:
             scraped_flat_ids = set(file.read().splitlines())
 
         # create a set for new flat results
@@ -95,22 +104,23 @@ def scrape_ebay_kleinanzeigen(url: str):
 
                         if not any(keyword in link_text_lowered for keyword in exclude_keywords):
                             current_flat_ids.add(flat_id)
-                            print(link_text)
+                            logger.info(link_text)
                             additional_message_text += f"Ad title: {link_text}\n"
-                            print(f"https://www.kleinanzeigen.de/{link_href}")
+                            logger.info(f"https://www.kleinanzeigen.de/{link_href}")
                             additional_message_text += f"Direct link: https://www.kleinanzeigen.de/{link_href}\n\n"
-            else:
-                print(f"{flat_id} is not a new flat")
 
         if len(current_flat_ids) > 0:
             message = f"New flat found at {url} \n\n{additional_message_text}"
             send_telegram_message(message=message)
 
-            with open("scraped_flat_ids.txt", "w") as file:
+            with open(f"{script_directory_abs_path}scraped_flat_ids.txt", "w") as file:
                 file.write("\n".join(scraped_flat_ids.union(current_flat_ids)))
+        else:
+            logger.info("no new flat")
+
         return None
     else:
-        print('response error:', res.status_code)
+        logger.info('response error:', res.status_code)
         return None
 
 
