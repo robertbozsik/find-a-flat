@@ -99,6 +99,8 @@ def scrape_ebay_kleinanzeigen(url: str):
                             additional_message_text += f"Ad title: {link_text}\n"
                             print(f"https://www.kleinanzeigen.de/{link_href}")
                             additional_message_text += f"Direct link: https://www.kleinanzeigen.de/{link_href}\n\n"
+            else:
+                print(f"{flat_id} is not a new flat")
 
         if len(current_flat_ids) > 0:
             message = f"New flat found at {url} \n\n{additional_message_text}"
