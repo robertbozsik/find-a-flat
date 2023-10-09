@@ -2,8 +2,7 @@ name: Scheduled Job
 
 on:
   schedule:
-    # 8-23 in Germany (UTC+2), means 22-13 in Pacific Time (UTC-8) where GitHub's servers are located
-    - cron: '*/4 22-13 * * *'
+    - cron: '*/4 * * * *'
 
 jobs:
   run-script:
@@ -16,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.8.x'
 
       - name: Install dependencies
         run: |
