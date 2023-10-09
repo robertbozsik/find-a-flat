@@ -4,9 +4,12 @@ env:
   TELEGRAM_TOKEN: ${{secrets.TELEGRAM_TOKEN}}
   TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
 
-on:
-  schedule:
-    - cron: '*/4 * * * *'
+# TODO: How to populate the scraped_flat_ids.txt?
+# TODO: How to set the cron job if the servers of GitHub are in Pacific time (GMT-8), but I'm in GMT+2
+
+#on:
+#  schedule:
+#    - cron: '*/4 * * * *'
 
 jobs:
   run-script:
