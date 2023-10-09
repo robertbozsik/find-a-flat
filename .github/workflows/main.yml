@@ -2,7 +2,8 @@ name: Scheduled Job
 
 on:
   schedule:
-    - cron: '*/4 8-22 * * *'
+    # 8-23 in Germany (UTC+2), means 22-13 in Pacific Time (UTC-8) where GitHub's servers are located
+    - cron: '*/4 22-13 * * *'
 
 jobs:
   run-script:
