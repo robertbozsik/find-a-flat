@@ -40,6 +40,7 @@ class Settings:
             "zwischenmiete",
             "wohngemeinschaft",
             "wg ",
+            " wg",
             "lichtenrade",
             "spandau",
             "wedding",
