@@ -45,4 +45,5 @@ class Settings:
             "spandau",
             "wedding",
             "pendler",
+            "befristet",
         ]
